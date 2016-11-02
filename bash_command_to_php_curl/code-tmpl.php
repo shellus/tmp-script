@@ -1,5 +1,5 @@
 <?='<?php'?>
-
+<?php /*ide hack*/if(empty($url))$url='';if(empty($data_headers))$data_headers=[];?>
 $url = '<?=$url?>';
 
 $ch = curl_init($url);
