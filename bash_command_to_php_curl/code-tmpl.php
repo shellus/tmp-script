@@ -1,4 +1,5 @@
 <?='<?php'?>
+
 <?php /*ide hack*/if(empty($url))$url='';if(empty($data_headers))$data_headers=[];?>
 $url = '<?=$url?>';
 
@@ -25,10 +26,12 @@ curl_setopt($ch, CURLOPT_COOKIE, implode('; ', $cs));
 <?php endif;?>
 
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-curl_setopt($ch, CURLOPT_HEADER, 0); // 不返回headers
+curl_setopt($ch, CURLOPT_HEADER, 0); // 接收headers
+curl_setopt($ch, CURLOPT_NOBODY, 0); // !不接收body
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // 不直接输出
 curl_setopt($ch, CURLOPT_ENCODING, 'gzip'); // 自适应gzip
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); // 跟随跳转
+curl_setopt($ch, CURLOPT_TIMEOUT, 5); // 5秒超时
 
 <?php if(!empty($form_data)):?>
 curl_setopt($ch, CURLOPT_POST, 1);
