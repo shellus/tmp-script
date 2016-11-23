@@ -9,8 +9,11 @@ class Request implements \ArrayAccess
 {
     protected $url;
     protected $method = 'GET';
-    /** @var string  */
-    protected $data = '';
+
+    /** @var array $data  */
+    protected $data = [];
+    /** @var string $body */
+    protected $body;
     /** @var array 缺省Header */
     protected $headers = [
         'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36',
@@ -21,6 +24,7 @@ class Request implements \ArrayAccess
 
     protected $closure;
 
+
     private $master;
     private $handle;
 
@@ -28,21 +32,20 @@ class Request implements \ArrayAccess
     /**
      * Request constructor.
      * @param string $url
-     * @param string $data
+     * @param string $body
      */
-    public function __construct($url = '', $data = '')
+    public function __construct($url = '', $body = '')
     {
         $this->url = $url;
-        $this->data = $data;
+        $this->body = $body;
     }
 
     /**
      * @return mixed
-     * @param mixed $_ [optional]
      */
-    public function callClosure($_)
+    public function getClosure()
     {
-        return call_user_func_array($this->closure, func_get_args());
+        return $this->closure;
     }
 
     /**
@@ -163,21 +166,7 @@ class Request implements \ArrayAccess
         $this->method = $method;
     }
 
-    /**
-     * @return array
-     */
-    public function getData()
-    {
-        return $this->data;
-    }
 
-    /**
-     * @param array $data
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
-    }
 
     /**
      * @return string
@@ -203,6 +192,22 @@ class Request implements \ArrayAccess
     public function setHeaders($headers)
     {
         $this->headers = $headers;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * @param string $body
+     */
+    public function setBody($body)
+    {
+        $this->body = $body;
     }
 
 

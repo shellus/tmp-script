@@ -13,6 +13,8 @@ class Response
 {
     protected $contentType = 'text/html';
     protected $content = '';
+    /** @var array $data  */
+    protected $data = [];
 
     public function __construct($content)
     {
@@ -38,4 +40,11 @@ class Response
     public function saveToFile($file){
         return file_put_contents($file, $this -> getContent());
     }
+
+
+    public function __toString()
+    {
+        return $this -> content;
+    }
+
 }

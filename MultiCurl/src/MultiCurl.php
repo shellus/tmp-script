@@ -32,7 +32,7 @@ class MultiCurl
         curl_setopt($ch, CURLOPT_URL, $request->getUrl()); // set url
 
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $request->getMethod()); // set method
-        if ($body_data = $request -> getData()){
+        if ($body_data = $request -> getBody()){
             curl_setopt($ch, CURLOPT_POSTFIELDS, $body_data); // request body
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $h = $request->getHeadersForCurl());
@@ -94,7 +94,7 @@ class MultiCurl
                 if ($info["result"] == CURLE_OK) {
                     foreach ($this->requests as $request) {
                         if ($request->getHandle() === $info['handle']) {
-                            $request->callClosure(new Response(curl_multi_getcontent($info['handle'])));
+                            $this -> callanle($request);
                             break;
                         }
                     }
@@ -106,5 +106,27 @@ class MultiCurl
 
         }
         return true;
+    }
+
+
+    public function callanle(Request $request){
+        $reflector = new \ReflectionFunction($request -> getClosure());
+        $parameters = $reflector->getParameters();
+        $parameter = $parameters[0];
+
+        if($arr = $parameter->getClass()){
+            switch ($arr -> name){
+                case JsonResponse::class:
+                    $responseClass = JsonResponse::class;
+                    break;
+                default:
+                    $responseClass = Response::class;
+                    break;
+            }
+
+            $response = new $responseClass(curl_multi_getcontent($request -> getHandle()));
+            call_user_func($request -> getClosure(), $response, $request);
+        }
+
     }
 }
