@@ -7,7 +7,7 @@
  */
 require __DIR__ . '/../vendor/autoload.php';
 
-$m = new MultiCurl();
+$m = new \MultiCurl\MultiCurl();
 
 //
 //$url = 'http://php.net/manual/en/function.curl-multi-select.php';
@@ -22,8 +22,8 @@ $m = new MultiCurl();
 
 
 $url = 'http://dl.360safe.com/setup.exe';
-$m -> get(new MultiCurlItem($url, function($item){
-    /** @var MultiCurlItem $item */
+$m -> get(new \MultiCurl\Request($url, function($item){
+    /** @var Request $item */
     $data = $item -> getContent();
 //    var_dump(strlen($data));
 //    var_dump(substr($data, -200));

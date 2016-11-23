@@ -1,4 +1,4 @@
-<?php
+<?php namespace MultiCurl;
 
 /**
  * Created by PhpStorm.
@@ -9,8 +9,8 @@
 class MultiCurl
 {
     protected $master;
-    /** @var MultiCurlItem[] $items */
-    protected $items = [];
+    /** @var Request[] $requests */
+    protected $requests = [];
 
     public function __construct()
     {
@@ -20,30 +20,35 @@ class MultiCurl
     public function __destruct()
     {
 
-        foreach ($this->items as $item) {
+        foreach ($this->requests as $item) {
             curl_multi_remove_handle($this->master, $item->getHandle());
         }
         curl_multi_close($this->master);
     }
 
-    public function get(MultiCurlItem $item)
+    public function addRequest(Request $request)
     {
-
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $item->getUrl());
+        curl_setopt($ch, CURLOPT_URL, $request->getUrl()); // set url
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $request->getMethod()); // set method
+        if ($body_data = $request -> getData()){
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $body_data); // request body
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $h = $request->getHeadersForCurl());
+        curl_setopt($ch, CURLOPT_ENCODING, 'gzip'); // 自适应gzip
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // 不直接输出
         curl_multi_add_handle($this->master, $ch);
 
-        $item->setHandle($ch);
-        $this->items[] = $item;
-
+        $request->setHandle($ch);
+        $this->requests[] = $request;
         return true;
     }
 
 
     /**
      * @return bool
-     * @throws Exception
+     * @throws \Exception
      */
     public function exec()
     {
@@ -75,10 +80,10 @@ class MultiCurl
 
             /*
             // TODO 进度输出
-            foreach ($this->items as $item) {
-                $l = curl_getinfo($item->getHandle(), CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+            foreach ($this->items as $request) {
+                $l = curl_getinfo($request->getHandle(), CURLINFO_CONTENT_LENGTH_DOWNLOAD);
                 if ($l != -1) {
-                    $p = curl_getinfo($item->getHandle(), CURLINFO_SIZE_DOWNLOAD);
+                    $p = curl_getinfo($request->getHandle(), CURLINFO_SIZE_DOWNLOAD);
                     var_dump($p . '/' . $l . ': ' . round($p / $l * 100, 2) . '%');
                 }
             }
@@ -87,14 +92,14 @@ class MultiCurl
             // 如果上面的信号有了，那这里就要一直拿数据。因为可能有1-N个请求响应完成
             while ($info = curl_multi_info_read($mh)) {
                 if ($info["result"] == CURLE_OK) {
-                    foreach ($this->items as $item) {
-                        if ($item->getHandle() === $info['handle']) {
-                            $item->callClosure();
+                    foreach ($this->requests as $request) {
+                        if ($request->getHandle() === $info['handle']) {
+                            $request->callClosure(new Response(curl_multi_getcontent($info['handle'])));
                             break;
                         }
                     }
                 } else {
-                    throw new Exception(curl_error($info['handle']));
+                    throw new \Exception(curl_error($info['handle']));
                 }
             }
 

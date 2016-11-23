@@ -1,0 +1,15 @@
+{
+    "name": "shellus-out/multi-curl",
+    "authors": [
+        {
+            "name": "shellus",
+            "email": "shellus@endaosi.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MultiCurl\\": "src/"
+        }
+    },
+    "require": {}
+}
